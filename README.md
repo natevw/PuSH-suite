@@ -26,7 +26,7 @@ Make sure your callback URL will indeed allow the hub to connect to the listenin
 
 To speed up development, I'm actually tunneling traffic from a public server of mine to my local machine.
 
-1. nginx config (on public server)
+1\. nginx config (on public server)
 
 Assuming wildcard DNS is already set up for an existing subdomain, add this to an nginx sites-enabled configuration file:
 
@@ -42,11 +42,11 @@ Assuming wildcard DNS is already set up for an existing subdomain, add this to a
     
 Then `sudo service nginx reload`.
 
-2. ssh tunnelling (run from dev machine)
+2\. ssh tunnelling (run from dev machine)
 
     ssh -R 8455:localhost:8008 user@testsuite.example.com -N        # blocks shell, add `-f` to run in background
 
-3. There is no step three! Actually there is: run the testsuite with `CB_URL=http://testsuite.example.com`
+3\. There is no step three! Actually there is: run the testsuite with `CB_URL=http://testsuite.example.com`
 
 
 ## License (MIT)
