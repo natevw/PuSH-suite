@@ -44,7 +44,7 @@ Then `sudo service nginx reload`.
 
 2\. ssh tunnelling (run from dev machine)
 
-    ssh -R 8455:localhost:8008 user@testsuite.example.com -N        # blocks shell, add `-f` to run in background
+    ssh -R 8455:localhost:8000 user@testsuite.example.com -N        # blocks shell, add `-f` to run in background
 
 3\. There is no step three! Actually there is: run the testsuite with `CB_URL=http://testsuite.example.com`
 
