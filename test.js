@@ -7,36 +7,68 @@ var HUB_URL = process.env.HUB_URL,
     CB_URL = process.env.CB_URL,
     PORT = process.env.PORT || 8000;
 
-var callback = CB_URL + "/cb",
-    callbacksByTopic = Object.create(null);
+var callbacks = {
+    GET: null,
+    POST: null
+};
+
+var callbacks;          // HACK: allow tests to access server happenings
+function serverCB(method, cb) {
+    callbacks[method] = function () {
+        delete callbacks[method];
+        return cb.apply(this, arguments);
+    }
+}
 
 describe('PubSubHubbub', function () {
-    this.timeout(15*60*1000);
+    //this.timeout(15*60*1000);
     
     it('verifies subscription', function (done) {
-        var mode = 'subscribe', topic = CB_URL + "/feed/verify";
+        var mode = 'subscribe', topic = CB_URL + "/feed";
         
         // https://superfeedr-misc.s3.amazonaws.com/pubsubhubbub-core-0.4.html#verifysub
-        callbacksByTopic['verify'] = function (req) {
-            delete callbacksByTopic['verify'];
-            // TODO: will mocha actually catch these asserts?
+        serverCB('GET', function (req) {
+            req._testsuite_accept();
             assert(req.query['hub.mode'] === mode, "Mode matches original request");
             assert(req.query['hub.topic'] === topic, "Topic matches original request");
-            assert(req.query['hub.challenge'], "Challenge included verification");
+            assert(req.query['hub.challenge'], "Challenge included in verification");
             done();
-            return true;
-        };
+        });
         
         // https://superfeedr-misc.s3.amazonaws.com/pubsubhubbub-core-0.4.html#rfc.section.5.1.2
         // http://superfeedr.com/documentation#pubsubhubbub_implementation
         request(HUB_URL).post("/").type('form').send({
-            'hub.callback': callback,
+            'hub.callback': CB_URL + "/cb",
             'hub.mode': mode,
             'hub.topic': topic,
-            'hub.verify': "async"
+            'hub.verify': "async"           // HACK: needed on superfeedr to get it to verify
         //}).expect(202);   // spec says this
-        }).expect(204);         // HACK: allow superfeedr.com/hubbub to pass
+        }).expect(204);                     // HACK: allow superfeedr.com/hubbub to pass
     });
+    
+    it('distributes content', function (done) {
+        var entryId = addEntryToFeed();
+        request(HUB_URL).post("/").type('form').send({
+            'hub.callback': CB_URL + "/cb",
+            'hub.mode': 'publish',          // HACK: superfeedr ping, this mode is not actually required by standard!
+            'hub.url': CB_URL + "/feed"
+        });
+        
+        serverCB('POST', function (req) {
+            var body = '';
+            request.on('data', function (data) { body += data; });
+            request.on('end', function () {
+                req._testsuite_accept();
+                assert.equal(req.headers['content-type'], "application/atom+xml", "Content-Type must match topic");
+                assert.ok(~req.body.indexOf(entryId), "Notification includes entry");
+                done();
+            });
+        });
+    });
+    
+    // TODO: check that unsubscription works
+    
+    // TODO: check inverses e.g. unverified does NOT call back?
 });
 
 
@@ -64,8 +96,6 @@ function addEntryToFeed() {
     return id;
 }
 
-addEntryToFeed();
-
 var app = connect()
     .use(connect.logger('dev'))
     .use(connect.query())
@@ -75,22 +105,17 @@ var app = connect()
         res.end(feed.toString());
     })
     .use("/cb", function (req, res) {
-        if (req.method === 'GET') {
-            var _topic = req.query['hub.topic'],
-                topic = _topic && _topic.split('/').slice(-1);
-            
-            var accept = (callbacksByTopic[topic]) ? callbacksByTopic[topic](req) : true;
-            if (accept) {
-                res.writeHead(200, {'Content-Type': "text/plain"});
-                res.end(req.query['hub.challenge']);
-            } else {
-                res.writeHead(404, {'Content-Type': "text/plain"});
-                res.end("Refusing verification.");
-            }
-        } else {
-            res.writeHead(201);
-            res.end();
+        req._testsuite_accept = function () {
+            res.writeHead(200, {'Content-Type': "text/plain"});
+            res.end(req.query['hub.challenge']);
         }
+        req._testsuite_reject = function () {
+            res.writeHead(404, {'Content-Type': "text/plain"});
+            res.end("Refusing verification.");
+        }
+        
+        if (callbacks[req.method]) callbacks[req.method](req);
+        else req._testsuite_accept();
     })
     .use(function (req, res) {
         res.writeHead(200, {'Content-Type': "text/plain"});
