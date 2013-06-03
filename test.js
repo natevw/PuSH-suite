@@ -21,7 +21,7 @@ function serverCB(method, cb) {
 }
 
 describe('PubSubHubbub', function () {
-    //this.timeout(15*60*1000);
+    this.timeout(15*60*1000);
     
     it('verifies subscription', function (done) {
         var mode = 'subscribe', topic = CB_URL + "/feed";
