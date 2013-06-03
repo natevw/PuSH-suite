@@ -1,12 +1,13 @@
 {
-  "name": "psh-suite",
+  "name": "push-suite",
   "version": "0.0.0",
   "description": "PubSubHubbub conformance suite",
   "main": "index.js",
   "dependencies": {
     "supertest": "~0.6.0",
     "mocha": "~1.9.0",
-    "connect": "~2.7.10"
+    "connect": "~2.7.10",
+    "ltx": "~0.2.3"
   },
   "devDependencies": {},
   "scripts": {
