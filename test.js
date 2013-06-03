@@ -29,6 +29,7 @@ describe('PubSubHubbub', function () {
         // https://superfeedr-misc.s3.amazonaws.com/pubsubhubbub-core-0.4.html#verifysub
         serverCB('GET', function (req) {
             req._testsuite_accept();
+            // TODO: mocha doesn't seem to actually catch these. huzzah...
             assert(req.query['hub.mode'] === mode, "Mode matches original request");
             assert(req.query['hub.topic'] === topic, "Topic matches original request");
             assert(req.query['hub.challenge'], "Challenge included in verification");
