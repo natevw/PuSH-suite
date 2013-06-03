@@ -1,5 +1,7 @@
 var request = require('supertest');
 
+// https://superfeedr-misc.s3.amazonaws.com/pubsubhubbub-core-0.4.html
+
 var HUB_URL = process.env.HUB_URL,
     CB_URL = process.env.CB_URL,
     PORT = process.env.PORT || 8000;
@@ -10,7 +12,8 @@ describe('PubSubHubbub', function() {
             'hub.callback': CB_URL + "/push-cb",
             'hub.mode': "subscribe",
             'hub.topic': CB_URL + "/feed"
-        }).expect(202, done);
+        //}).expect(202, done);                 // spec says this
+        }).expect(204, done);                   // for superfeedr.com/hubbub
     });
 });
 
