@@ -27,20 +27,26 @@ describe('PubSubHubbub', function () {
   });
 
   describe('Subscribing', function() {
-    describe('Subscription Request', function() {
-      describe('Subscription Parameter details', function() {
-      });
+    it('should return a 202 when issuing a valid subscription request');
+    it('should accept http callback urls')
+    it('should accept https callback urls')
+    it('should accept callback urls with extra string parameters')
+    it('should accept only the self link provided by the discovery phase, if there is any')
+    it('should return a 4xx when issuing a invalid subscription request with no hub.callback and provide the right error in the body');
+    it('should return a 4xx when issuing a invalid subscription request with no hub.mode and provide the right error in the body');
+    it('should return a 4xx when issuing a invalid subscription request with no hub.topic and provide the right error in the body');
+    it('should return a 4xx when issuing a invalid subscription request with a hub.topic which is not the self url and provide the right error in the body');
+    it('should ignore extra parameters they do not understand')
+    it('should accept re-subscriptions')
 
-      describe('Subscription Response details', function() {
-      });
-
-    });
 
     describe('Subscription Validation', function() {
+
     });
 
     describe('Hub Verifies Intent of the Subscriber', function() {
       describe('Verification Details', function() {
+
       });
     });
   });
