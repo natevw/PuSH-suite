@@ -1,4 +1,2 @@
 --globals domain,_events,_maxListeners
 --recursive
---timeout 1000000
---reporter spec
