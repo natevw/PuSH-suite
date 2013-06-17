@@ -1,0 +1,2 @@
+--globals domain,_events,_maxListeners
+--recursive

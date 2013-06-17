@@ -7,7 +7,11 @@
     "supertest": "~0.6.0",
     "mocha": "~1.9.0",
     "connect": "~2.7.10",
-    "ltx": "~0.2.3"
+    "express": "*",
+    "request": "~2.21.0",
+    "ltx": "~0.2.3",
+    "sockjs": "*",
+    "node-static": "*"
   },
   "devDependencies": {},
   "scripts": {
